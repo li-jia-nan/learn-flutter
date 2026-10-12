@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Douyin 混合工程</string>
+    <string name="native_title">Android Native + Flutter</string>
+    <string name="native_description">上方是 Android 原生布局，下方是现有 Flutter 页面。</string>
+    <string name="native_button">点击原生按钮</string>
+    <string name="native_toast">这是 Android 原生 Toast</string>
+</resources>

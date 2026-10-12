@@ -1,0 +1,26 @@
+name: douyin_flutter_module
+description: Flutter add-to-app entrypoint for the native Android host.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Reuse the existing Flutter application without copying its pages.
+  my_app_douyin:
+    path: ..
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  module:
+    androidX: true
+    androidPackage: com.example.douyin_flutter_module
+    iosBundleIdentifier: com.example.douyinFlutterModule
