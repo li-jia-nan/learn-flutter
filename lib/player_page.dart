@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class PlayerPage extends StatefulWidget {
-  const PlayerPage({super.key});
+  const PlayerPage({super.key, required this.videoUrl});
+
+  final String videoUrl;
 
   @override
   State<PlayerPage> createState() => _PlayerPageState();
 }
 
 class _PlayerPageState extends State<PlayerPage> {
-  static const String url = 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
-
   late final VideoPlayerController _videoPlayerController;
   late final Future<void> _initializeFuture;
   ChewieController? _chewieController;
@@ -19,7 +19,7 @@ class _PlayerPageState extends State<PlayerPage> {
   @override
   void initState() {
     super.initState();
-    _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(url));
+    _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     _initializeFuture = _initializePlayer();
   }
 

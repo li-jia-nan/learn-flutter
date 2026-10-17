@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/player_page.dart';
 import 'package:video_player/video_player.dart';
 
 // 100 public MP4 URLs, ordered by file size (smallest first).
@@ -263,6 +264,7 @@ class _VideoListItemState extends State<_VideoListItem> {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       autoPlay: false,
+      showControls: false,
       errorBuilder: (context, errorMessage) => Center(
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -286,44 +288,55 @@ class _VideoListItemState extends State<_VideoListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
+    return Material(
       color: Colors.black,
-      child: FutureBuilder<void>(
-        future: _initializeFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  '视频加载失败：${snapshot.error}',
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            );
-          }
-
-          final controller = _chewieController;
-          if (snapshot.connectionState != ConnectionState.done || controller == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              // Chewie's standard control bar needs room even in a small cell.
-              final width = constraints.maxWidth < 400 ? 400.0 : constraints.maxWidth;
-              return FittedBox(
-                child: SizedBox(
-                  width: width,
-                  height: width * 9 / 16,
-                  child: Chewie(controller: controller),
-                ),
-              );
-            },
+      child: InkWell(
+        onTap: () {
+          final videoUrl = widget.videoUrl;
+          Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(builder: (context) => PlayerPage(videoUrl: videoUrl)),
           );
         },
+        child: IgnorePointer(
+          child: FutureBuilder<void>(
+            future: _initializeFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      '视频加载失败：${snapshot.error}',
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              }
+
+              final controller = _chewieController;
+              if (snapshot.connectionState != ConnectionState.done || controller == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Chewie(controller: controller),
+                  const Center(
+                    child: Icon(
+                      Icons.play_circle_fill,
+                      size: 48,
+                      color: Colors.white70,
+                      semanticLabel: '播放视频',
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }

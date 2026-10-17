@@ -4,9 +4,12 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_app/main.dart';
 import 'package:my_app/player_page.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+
+const playerApp = MaterialApp(
+  home: PlayerPage(videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'),
+);
 
 void main() {
   late VideoPlayerPlatform originalPlatform;
@@ -22,10 +25,8 @@ void main() {
     VideoPlayerPlatform.instance = originalPlatform;
   });
 
-  testWidgets('Loads, autoplays, reuses and releases the player', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Loads, autoplays, reuses and releases the player', (tester) async {
+    await tester.pumpWidget(playerApp);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     platform.initializeVideo();
@@ -39,10 +40,7 @@ void main() {
     tester.element(find.byType(PlayerPage)).markNeedsBuild();
     await tester.pump();
     expect(platform.sources, hasLength(1));
-    expect(
-      tester.widget<Chewie>(find.byType(Chewie)).controller,
-      same(controller),
-    );
+    expect(tester.widget<Chewie>(find.byType(Chewie)).controller, same(controller));
 
     await controller.pause();
     await tester.pumpAndSettle();
@@ -54,10 +52,8 @@ void main() {
     expect(platform.disposeCount, 1);
   });
 
-  testWidgets('Shows initialization failures instead of loading forever', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Shows initialization failures instead of loading forever', (tester) async {
+    await tester.pumpWidget(playerApp);
 
     platform.failVideo('Unable to load video');
     await tester.pumpAndSettle();
@@ -74,7 +70,7 @@ void main() {
   });
 
   testWidgets('Shows errors that occur during playback', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(playerApp);
     platform.initializeVideo();
     await tester.pumpAndSettle();
 
@@ -88,11 +84,9 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
   });
 
-  testWidgets('Releases the player when leaving before creation completes', (
-    tester,
-  ) async {
+  testWidgets('Releases the player when leaving before creation completes', (tester) async {
     platform.creationGate = Completer<void>();
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(playerApp);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
@@ -141,8 +135,7 @@ class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
   Stream<VideoEvent> videoEventsFor(int playerId) => _events.stream;
 
   @override
-  Widget buildViewWithOptions(VideoViewOptions options) =>
-      const SizedBox.expand();
+  Widget buildViewWithOptions(VideoViewOptions options) => const SizedBox.expand();
 
   @override
   Future<void> play(int playerId) async => isPlaying = true;
