@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
 class PlayerPage extends StatefulWidget {
@@ -64,11 +68,61 @@ class _PlayerPageState extends State<PlayerPage> {
                 return const CircularProgressIndicator();
               }
 
-              return Chewie(controller: controller);
+              return GestureDetector(
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('提示'),
+                      content: const Text('需要下载本视频吗？'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('关闭'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            _downloadVideo(widget.videoUrl);
+                          },
+                          child: const Text('下载'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Chewie(controller: controller),
+              );
             },
           ),
         ),
       ),
     );
+  }
+
+  void _downloadVideo(String url) async {
+    // 在这里添加下载视频的逻辑
+    debugPrint('Downloading video: $url');
+
+    Directory dir = await getApplicationSupportDirectory();
+
+    String savePath = '${dir.path}/video.mp4';
+
+    // 开始下载视频并显示下载进度
+    var result = await Dio().download(
+      url,
+      savePath,
+      onReceiveProgress: (count, total) {
+        var progress = count / total;
+        debugPrint('下载进度: $progress');
+      },
+    );
+
+    if (result.statusCode == 200) {
+      debugPrint('Download successful: ${result.data}');
+    } else {
+      debugPrint('Download failed with status: ${result.statusCode}');
+    }
   }
 }
