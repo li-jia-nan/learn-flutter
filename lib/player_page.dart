@@ -105,7 +105,17 @@ class _PlayerPageState extends State<PlayerPage> {
     // 在这里添加下载视频的逻辑
     debugPrint('Downloading video: $url');
 
-    Directory dir = await getApplicationSupportDirectory();
+    final Directory dir;
+    if (Platform.isAndroid) {
+      dir = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+    } else if (Platform.isIOS) {
+      dir = await getApplicationDocumentsDirectory();
+    } else if (Platform.isMacOS) {
+      dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    } else {
+      dir = await getApplicationSupportDirectory();
+    }
+    await dir.create(recursive: true);
 
     String savePath = '${dir.path}/video.mp4';
 
@@ -114,7 +124,7 @@ class _PlayerPageState extends State<PlayerPage> {
       url,
       savePath,
       onReceiveProgress: (count, total) {
-        var progress = count / total;
+        String progress = '${(count / total * 100).toInt()}%';
         debugPrint('下载进度: $progress');
       },
     );
