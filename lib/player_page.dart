@@ -85,6 +85,7 @@ class _PlayerPageState extends State<PlayerPage> {
                         TextButton(
                           onPressed: () {
                             _downloadVideo(widget.videoUrl);
+                            Navigator.of(context).pop();
                           },
                           child: const Text('下载'),
                         ),
@@ -102,6 +103,9 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   void _downloadVideo(String url) async {
+    Uri uri = Uri.parse(url);
+    String name = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'video.mp4';
+
     // 在这里添加下载视频的逻辑
     debugPrint('Downloading video: $url');
 
@@ -117,7 +121,7 @@ class _PlayerPageState extends State<PlayerPage> {
     }
     await dir.create(recursive: true);
 
-    String savePath = '${dir.path}/video.mp4';
+    String savePath = '${dir.path}/$name';
 
     // 开始下载视频并显示下载进度
     var result = await Dio().download(
