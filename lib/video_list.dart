@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/player_page.dart';
+import 'package:my_app/video_controller.dart';
 import 'package:video_player/video_player.dart';
 
 // 100 public MP4 URLs, ordered by file size (smallest first).
@@ -217,6 +218,15 @@ class VideoList extends StatefulWidget {
 }
 
 class _VideoListState extends State<VideoList> {
+  late final VideoController _videoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _videoController = VideoController();
+    _videoController.init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,7 +237,7 @@ class _VideoListState extends State<VideoList> {
         ),
         itemCount: testVideoUrls.length,
         itemBuilder: (BuildContext context, int index) {
-          final videoUrl = testVideoUrls[index];
+          final videoUrl = _videoController.url;
           return _VideoListItem(key: ValueKey(videoUrl), videoUrl: videoUrl);
         },
       ),
